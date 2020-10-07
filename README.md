@@ -34,6 +34,7 @@
      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
      
      
-   https://github.com/Anjani-prog/react-native-Webrtc/edit/main/Webrtc/DOC.md
+  
      
  detailed Explanation about webrtc
+ https://github.com/Anjani-prog/react-native-Webrtc/blob/main/Webrtc/DOC.md
