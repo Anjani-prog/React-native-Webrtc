@@ -15,7 +15,7 @@ https://www.tutorialspoint.com/webrtc/webrtc_overview.htm )
 - The WebRTC API includes media capture, encoding and decoding audio and video, transportation layer, and session management.
 
 
-Media Capture - Detect the type of devices available & to get access to the camera and microphone of the user's device.
+1) Media Capture - Detect the type of devices available & to get access to the camera and microphone of the user's device.
 
 2)  Encoding and Decoding Audio and Video  - The process of splitting up video frames and audio waves into smaller chunks and compressing them. This algorithm is called codec.There are also many codecs inside WebRTC like H.264, iSAC, Opus and VP8.When two browsers connect together, they choose the most optimal supported codec between two users. Fortunately, WebRTC does most of the encoding behind the scenes.
 
