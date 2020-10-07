@@ -38,3 +38,14 @@
      
  detailed Explanation about webrtc
  https://github.com/Anjani-prog/react-native-Webrtc/blob/main/Webrtc/DOC.md
+ 
+ 
+ running server
+            
+       cd webrtcBackend 
+       node app.js
+       
+       
+ to test use ngrok (Expose a local web server to the internet) (https://ngrok.com/docs)
+      
+       ngrok http 8080
