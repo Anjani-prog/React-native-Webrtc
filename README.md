@@ -49,3 +49,9 @@
  to test use ngrok (Expose a local web server to the internet) (https://ngrok.com/docs)
       
        ngrok http 8080
+       
+       
+ For Audio Experiences I used
+ https://www.npmjs.com/package/react-native-switch-audio-output
+ https://github.com/Tintef/react-native-headphone-detection
+     
