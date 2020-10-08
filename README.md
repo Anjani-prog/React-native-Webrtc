@@ -51,7 +51,26 @@
        ngrok http 8080
        
        
- For Audio Experiences I used
+ For Audio Experiences I used this will work for android
  https://www.npmjs.com/package/react-native-switch-audio-output
  https://github.com/Tintef/react-native-headphone-detection
      
+     
+     
+      componentDidMount() {
+        HeadphoneDetection.addListener(data => {
+            if (data.audioJack) {
+                RNSwitchAudioOutput.switchAudioOutput(false)
+            }
+            else if (!data.audioJack) {
+                RNSwitchAudioOutput.switchAudioOutput(true)
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        if (HeadphoneDetection.remove) { // The remove is not necessary on Android
+            HeadphoneDetection.remove();
+
+        }
+    }
