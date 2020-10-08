@@ -29,8 +29,9 @@ import {
 } from 'react-native-webrtc';
 
 import io from 'socket.io-client'
-
+import HeadphoneDetection from 'react-native-headphone-detection';
 import Video from './components/video'
+import RNSwitchAudioOutput from 'react-native-switch-audio-output';
 const dimensions = Dimensions.get('window')
 class PrayerRoom extends React.Component {
     constructor(props) {
@@ -68,20 +69,37 @@ class PrayerRoom extends React.Component {
             connect: false,
             camera: true,
             mic: true,
-            serviceIP: ''
+            serviceIP: '',
+            isFront: true   // for flipping front and back cam
         }
 
         this.socket = null
     }
 
+    componentDidMount() {
+        HeadphoneDetection.addListener(data => {
+            if (data.audioJack) {
+                RNSwitchAudioOutput.switchAudioOutput(false)
+            }
+            else if (!data.audioJack) {
+                RNSwitchAudioOutput.switchAudioOutput(true)
+            }
+        });
+    }
 
+    componentWillUnmount() {
+        if (HeadphoneDetection.remove) { // The remove is not necessary on Android
+            HeadphoneDetection.remove();
+
+        }
+    }
     getLocalStream = () => {
         const success = (stream) => {
             console.log('localStream... ', stream.toURL())
             this.setState({
                 localStream: stream
             })
-
+            //  while join in  room add the current user to online users
             this.whoisOnline()
         }
 
@@ -89,12 +107,12 @@ class PrayerRoom extends React.Component {
             console.log('getUserMedia Error: ', e)
         }
 
-        let isFront = true;
+
         mediaDevices.enumerateDevices().then(sourceInfos => {
             let videoSourceId;
             for (let i = 0; i < sourceInfos.length; i++) {
                 const sourceInfo = sourceInfos[i];
-                if (sourceInfo.kind == "videoinput" && sourceInfo.facing == (isFront ? "front" : "environment")) {
+                if (sourceInfo.kind == "videoinput" && sourceInfo.facing == (this.state.isFront ? "front" : "environment")) {
                     videoSourceId = sourceInfo.deviceId;
                 }
             }
@@ -107,7 +125,7 @@ class PrayerRoom extends React.Component {
                         minHeight: 300,
                         minFrameRate: 30
                     },
-                    facingMode: (isFront ? "user" : "environment"),
+                    facingMode: (this.state.isFront ? "user" : "environment"),
                     optional: (videoSourceId ? [{ sourceId: videoSourceId }] : [])
                 }
             }
@@ -151,13 +169,7 @@ class PrayerRoom extends React.Component {
             }
 
             pc.oniceconnectionstatechange = (e) => {
-                // if (pc.iceConnectionState === 'disconnected') {
-                //   const remoteStreams = this.state.remoteStreams.filter(stream => stream.id !== socketID)
 
-                //   this.setState({
-                //     remoteStream: remoteStreams.length > 0 && remoteStreams[0].stream || null,
-                //   })
-                // }
             }
 
             pc.onaddstream = (e) => {
@@ -177,38 +189,6 @@ class PrayerRoom extends React.Component {
                     stream: e.stream,
                 }
                 remoteStreams = [...this.state.remoteStreams, remoteVideo]
-
-                // 2. if it does exist then add track
-                // if (rVideos.length) {
-                //   _remoteStream = rVideos[0].stream
-                //   _remoteStream.addTrack(e.track, _remoteStream)
-                //   remoteVideo = {
-                //     ...rVideos[0],
-                //     stream: _remoteStream,
-                //   }
-                //   remoteStreams = this.state.remoteStreams.map(_remoteVideo => {
-                //     return _remoteVideo.id === remoteVideo.id && remoteVideo || _remoteVideo
-                //   })
-                // } else {
-                //   // 3. if not, then create new stream and add track
-                //   _remoteStream = new MediaStream()
-                //   _remoteStream.addTrack(e.track, _remoteStream)
-
-                //   remoteVideo = {
-                //     id: socketID,
-                //     name: socketID,
-                //     stream: _remoteStream,
-                //   }
-                //   remoteStreams = [...this.state.remoteStreams, remoteVideo]
-                // }
-
-
-
-                // const remoteVideo = {
-                //   id: socketID,
-                //   name: socketID,
-                //   stream: e.streams[0]
-                // }
 
                 this.setState(prevState => {
 
@@ -237,10 +217,6 @@ class PrayerRoom extends React.Component {
 
             if (this.state.localStream) {
                 pc.addStream(this.state.localStream)
-
-                //   // this.state.localStream.getTracks().forEach(track => {
-                //   //   pc.addTrack(track, this.state.localStream)
-                //   // })
             }
             // return pc
             callback(pc)
@@ -254,6 +230,8 @@ class PrayerRoom extends React.Component {
 
 
     joinRoom = () => {
+
+
         this.setState({
             connect: true,
         })
@@ -596,9 +574,16 @@ class PrayerRoom extends React.Component {
                     }}>
                     <Image
                         style={styles.tinyLogo}
-                        source={this.state.camera && { uri: '../assets/images/video-camera.png' } || { uri: '../assets/images/video-camera-off.png' }}
+
+                        source={this.state.camera && require('../assets/images/video-camera.png') || require('../assets/images/video-camera-off.png')}
                     />
                 </TouchableOpacity>
+                {/* <TouchableOpacity
+                    onPress={() => {
+                        RNSwitchAudioOutput.switchAudioOutput(true)
+                    }}>
+                    <Text>SpeakerOn</Text>
+                </TouchableOpacity> */}
                 <TouchableOpacity
                     onPress={() => {
                         debugger
@@ -611,10 +596,9 @@ class PrayerRoom extends React.Component {
                     <Image
                         style={styles.tinyLogo}
                         resizeMode='contain'
-                        source={this.state.mic && { uri: '../assets/images/microphone.png' } || { uri: '../assets/images/microphone-off.png' }}
+                        source={this.state.mic && require('../assets/images/microphone.png') || require('../assets/images/microphone-off.png')}
                     />
                 </TouchableOpacity>
-
                 <TouchableOpacity
                     style={{ backgroundColor: 'red', width: 'auto', paddingHorizontal: 5 }}
                     onPress={() => {
