@@ -90,7 +90,6 @@ class PrayerRoom extends React.Component {
     componentWillUnmount() {
         if (HeadphoneDetection.remove) { // The remove is not necessary on Android
             HeadphoneDetection.remove();
-
         }
     }
     getLocalStream = () => {
