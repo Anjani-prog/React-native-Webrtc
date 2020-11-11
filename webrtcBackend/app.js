@@ -2,9 +2,9 @@
 const express = require('express')
 
 var io = require('socket.io')
-({
-  path: '/io/webrtc'
-})
+  ({
+    path: '/io/webrtc'
+  })
 
 const app = express()
 const port = 8080
@@ -12,9 +12,13 @@ const port = 8080
 const rooms = {}
 const messages = {}
 
+app.get('/', (req, res) => {
+  res.send('Welcome World Prayer Centre!')
+})
+
 app.post('/:room', (req, res, next) => {
   console.log(req.body)
-  res.status(200).json({data: req.body})
+  res.status(200).json({ data: req.body })
 })
 
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`))
@@ -42,14 +46,14 @@ peers.on('connection', socket => {
     peerCount: rooms[room].size,
     messages: messages[room],
   })
-  
+
   const broadcast = () => {
     const _connectedPeers = rooms[room]
 
     for (const [socketID, _socket] of _connectedPeers.entries()) {
-        _socket.emit('joined-peers', {
-          peerCount: rooms[room].size, //connectedPeers.size,
-        })
+      _socket.emit('joined-peers', {
+        peerCount: rooms[room].size, //connectedPeers.size,
+      })
     }
   }
   broadcast()
@@ -57,10 +61,10 @@ peers.on('connection', socket => {
   const disconnectedPeer = (socketID) => {
     const _connectedPeers = rooms[room]
     for (const [_socketID, _socket] of _connectedPeers.entries()) {
-        _socket.emit('peer-disconnected', {
-          peerCount: rooms[room].size,
-          socketID
-        })
+      _socket.emit('peer-disconnected', {
+        peerCount: rooms[room].size,
+        socketID
+      })
     }
   }
 
@@ -104,9 +108,9 @@ peers.on('connection', socket => {
       if (socketID === data.socketID.remote) {
         // console.log('Offer', socketID, data.socketID, data.payload.type)
         socket.emit('offer', {
-            sdp: data.payload,
-            socketID: data.socketID.local
-          }
+          sdp: data.payload,
+          socketID: data.socketID.local
+        }
         )
       }
     }
@@ -119,9 +123,9 @@ peers.on('connection', socket => {
       if (socketID === data.socketID.remote) {
         console.log('Answer', socketID, data.socketID, data.payload.type)
         socket.emit('answer', {
-            sdp: data.payload,
-            socketID: data.socketID.local
-          }
+          sdp: data.payload,
+          socketID: data.socketID.local
+        }
         )
       }
     }
